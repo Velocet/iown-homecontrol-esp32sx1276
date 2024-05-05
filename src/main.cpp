@@ -90,9 +90,7 @@ bool publishMsg(IOHC::iohcPacket* iohc);
 bool IRAM_ATTR msgRcvd(IOHC::iohcPacket* iohc);
 bool msgArchive(IOHC::iohcPacket* iohc);
 
-#if defined(ESP8266)
-      Timers::TickerUs kbd_tick;
-#elif defined(ESP32)
+#if defined(ESP32)
 //      TickerUsESP32 kbd_tick;
 #endif
 
@@ -368,7 +366,7 @@ bool IRAM_ATTR msgRcvd(IOHC::iohcPacket* iohc) {
         case IOHC::iohcDevice::RECEIVED_DISCOVER_ACTUATOR_0x2C: {
             printf("2W Actuator Ack Asked\n");
             if (!pairMode) break;
-            
+
             packets2send.clear();
             digitalWrite(RX_LED, digitalRead(RX_LED) ^ 1);
             std::vector<uint8_t> toSend = {};
@@ -388,7 +386,7 @@ bool IRAM_ATTR msgRcvd(IOHC::iohcPacket* iohc) {
             // packets2send[0]->payload.packet.header.CtrlByte1.asStruct.StartFrame = 0;
             // packets2send[0]->payload.packet.header.CtrlByte1.asStruct.EndFrame = 0;
 
-            packets2send.back()->buffer_length = toSend.size() + 9; 
+            packets2send.back()->buffer_length = toSend.size() + 9;
             packets2send.back()->frequency = CHANNEL2;
             packets2send.back()->repeatTime = 25;
             packets2send.back()->delayed = 250;
@@ -403,7 +401,7 @@ bool IRAM_ATTR msgRcvd(IOHC::iohcPacket* iohc) {
         case IOHC::iohcDevice::SEND_LAUNCH_KEY_TRANSFERT_0x38: {
             printf("2W Key Transfert Asked after Command %2.2X\n", iohc->payload.packet.header.cmd);
             if (!pairMode) break;
-            
+
             packets2send.clear();
             digitalWrite(RX_LED, digitalRead(RX_LED) ^ 1);
             std::vector<uint8_t> key_transfert;
@@ -454,7 +452,7 @@ bool IRAM_ATTR msgRcvd(IOHC::iohcPacket* iohc) {
             // packets2send[0]->payload.packet.header.CtrlByte1.asStruct.StartFrame = 0;
             // packets2send[0]->payload.packet.header.CtrlByte1.asStruct.EndFrame = 0;
 
-            packets2send.back()->buffer_length = toSend.size() + 9; 
+            packets2send.back()->buffer_length = toSend.size() + 9;
             packets2send.back()->frequency = CHANNEL2;
             packets2send.back()->repeatTime = 25;
             IOHC::packetStamp = esp_timer_get_time(); //
@@ -485,7 +483,7 @@ bool IRAM_ATTR msgRcvd(IOHC::iohcPacket* iohc) {
             // Answer only to our gateway, not to others devices
             if (cozyDevice2W->isFake(iohc->payload.packet.header.source, iohc->payload.packet.header.target)) { // (true) { //
                 packets2send_tmp.clear();
-               
+
                 digitalWrite(RX_LED, digitalRead(RX_LED) ^ 1);
 
                 doc["type"] = "Gateway";
@@ -501,14 +499,14 @@ bool IRAM_ATTR msgRcvd(IOHC::iohcPacket* iohc) {
                 challengeAsked.assign(iohc->payload.buffer + 9, iohc->payload.buffer + 15);
                 printf("Challenge asked after LastSend Command %2.2X\n", IOHC::lastSendCmd);
                 printf("Challenge asked after Memorized Command %2.2X\n", cozyDevice2W->memorizeSend.memorizedCmd);
-               
+
 if(scanMode) {cozyDevice2W->mapValid[IOHC::lastSendCmd] = 0x3C; break;}
 
                 std::vector<uint8_t> IVdata = cozyDevice2W->memorizeSend.memorizedData;
                 IVdata.insert(IVdata.begin(), cozyDevice2W->memorizeSend.memorizedCmd);
-                
+
                 packets2send_tmp.push_back(new IOHC::iohcPacket);
- 
+
                 packets2send_tmp.back()->payload.packet.header.cmd = IOHC::iohcDevice::SEND_CHALLENGE_ANSWER_0x3D;
 
                 unsigned char initial_value[16];
@@ -539,13 +537,13 @@ if(scanMode) {cozyDevice2W->mapValid[IOHC::lastSendCmd] = 0x3C; break;}
                 memcpy(packets2send_tmp.back()->payload.buffer + 9, initial_value, dataLen);
 
                 packets2send_tmp.back()->buffer_length = dataLen/*challengeAsked.size()*/ + 9;
-                
+
                 packets2send_tmp.back()->frequency = CHANNEL2;
                 packets2send_tmp.back()->repeatTime = 6;
                 IOHC::packetStamp = esp_timer_get_time(); //
                 packets2send_tmp.back()->repeat = 1; // Need to stop txMode
                 packets2send_tmp.back()->lock = false; //true; // Need to received ASAP
-                
+
                 radioInstance->send(packets2send_tmp);
 
                 // Serial.print("IV used for key encryption: ");
@@ -591,18 +589,18 @@ for (char byte : nameReceived) {
         case 0x4B:
         case 0x55:
         case 0x57:
-        case 0x59:            
-            if (scanMode) { 
+        case 0x59:
+            if (scanMode) {
                 otherDevice2W->memorizeOther2W = {};
                     // printf(" Answer %X Cmd %X ", iohc->payload.packet.header.cmd, IOHC::lastSendCmd);
-                    cozyDevice2W->mapValid[IOHC::lastSendCmd] = iohc->payload.packet.header.cmd; 
+                    cozyDevice2W->mapValid[IOHC::lastSendCmd] = iohc->payload.packet.header.cmd;
             }
             break;
         case 0xFE: {
-            if (scanMode) { 
+            if (scanMode) {
                 otherDevice2W->memorizeOther2W = {};
                     // printf(" Unknown %X Cmd %X ", iohc->payload.buffer[9], IOHC::lastSendCmd);
-                    cozyDevice2W->mapValid[IOHC::lastSendCmd] = iohc->payload.buffer[9]; 
+                    cozyDevice2W->mapValid[IOHC::lastSendCmd] = iohc->payload.buffer[9];
             }
             break;
         }
@@ -660,7 +658,7 @@ for (char byte : nameReceived) {
                                 iohc->payload.packet.msg.p0x2b.info);
             break;
         }
- 
+
         case 0x30: {
             for (uint8_t idx = 0; idx < 16; idx++)
                 keyCap[idx] = iohc->payload.packet.msg.p0x30.enc_key[idx];
@@ -675,11 +673,11 @@ for (char byte : nameReceived) {
         case 0X2E:
             printf("1W Learning mode\n");
             break;
-            
+
         case 0x39: {
             if (keyCap[0] == 0) break;
             uint8_t hmac[16];
-            std::vector<uint8_t> frame(&iohc->payload.packet.header.cmd, &iohc->payload.packet.header.cmd + 2); // frame = {0x39, 0x00}; // 
+            std::vector<uint8_t> frame(&iohc->payload.packet.header.cmd, &iohc->payload.packet.header.cmd + 2); // frame = {0x39, 0x00}; //
             iohcCrypto::create_1W_hmac(hmac, iohc->payload.packet.msg.p0x39.sequence, keyCap, frame);
             printf("MAC: ");
             for (uint8_t idx = 0; idx < 6; idx++)

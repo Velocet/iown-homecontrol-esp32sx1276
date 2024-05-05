@@ -6,19 +6,16 @@
 #if defined(RADIO_SX127X)
     #include <map>
 
-#if defined(ESP8266)
-    #include <TickerUs.h>
-#elif defined(ESP32)
+#if defined(ESP32)
     #define CONFIG_DISABLE_HAL_LOCKS true
     #include <TickerUsESP32.h>
     #include <esp_task_wdt.h>
     #include <SPI.h>
-    // #include <SPIeX.h>
 #endif
 
 namespace Radio {
     SPISettings SpiSettings(4000000, MSBFIRST, SPI_MODE0);
-    
+
     // Simplified bandwidth registries evaluation
     std::map<uint8_t, regBandWidth> __bw =
     {
@@ -99,7 +96,7 @@ namespace Radio {
         // Switch-off clockout
         writeByte(REG_OSC, RF_OSC_CLKOUT_OFF); // This only give power saveing maybe we can use it as ticker µs
 
-        // Variable packet lenght, generates working CRC. 
+        // Variable packet lenght, generates working CRC.
         // Packet mode, IoHomeOn, IoHomePowerFrame to be added (0x10) to avoid rx to newly detect the preamble during tx radio shutdown
         // Must CRCAUTOCLEAR_ON or do full clean FIFO !
         writeByte(
@@ -113,7 +110,7 @@ namespace Radio {
         // Preamble shall be set to AA for packets to be received by appliances. Sync word shall be set with different values if Rx or Tx
         writeByte(REG_SYNCCONFIG, RF_SYNCCONFIG_AUTORESTARTRXMODE_WAITPLL_OFF | RF_SYNCCONFIG_PREAMBLEPOLARITY_AA | RF_SYNCCONFIG_SYNC_ON); //0x51); // 0x91); // TODOVERIFY 0x92
         //RF_SYNCCONFIG_AUTORESTARTRXMODE_WAITPLL_ON | RF_SYNCCONFIG_PREAMBLEPOLARITY_AA | RF_SYNCCONFIG_SYNC_ON);
-        
+
         // Set Sync word to 0xff33 both for rx and tx
         writeByte(REG_SYNCVALUE1, SYNC_BYTE_1);
         writeByte(REG_SYNCVALUE2, SYNC_BYTE_2);
@@ -131,7 +128,7 @@ namespace Radio {
         // Enable Fast Hoping (frequency change) // Not needed all the time
         // Not using that, as it miss a lot of frames
         if (MAX_FREQS != 1)
-            writeByte(REG_PLLHOP, readByte(REG_PLLHOP) | RF_PLLHOP_FASTHOP_ON); 
+            writeByte(REG_PLLHOP, readByte(REG_PLLHOP) | RF_PLLHOP_FASTHOP_ON);
 
         // ---------------- TX Register init section ----------------
         // PA boost maximum power
@@ -160,7 +157,7 @@ namespace Radio {
 
         writeByte(REG_AFCFEI, 0x01);
         // if AGC_AUTO_ON, RF_LNA_GAIN_XX do nothing
-        writeByte(REG_LNA, RF_LNA_BOOST_ON | RF_LNA_GAIN_G1); // 0xC3) ; 
+        writeByte(REG_LNA, RF_LNA_BOOST_ON | RF_LNA_GAIN_G1); // 0xC3) ;
 
         // Enables Preamble Detect, 2 bytes
         writeByte(
@@ -174,7 +171,7 @@ namespace Radio {
     }
 
     /**
-     * 
+     *
      */
     void calibrate() {
         // Save context
@@ -197,7 +194,7 @@ namespace Radio {
         }
 
         // Restore context
-        writeByte(REG_PACONFIG, regPaConfigInitVal);    
+        writeByte(REG_PACONFIG, regPaConfigInitVal);
     }
 
     /*!
@@ -246,7 +243,7 @@ namespace Radio {
         // Enabling Sync word - Size must be set to SYNCSIZE_2 (0x01 in header file)
         writeByte(REG_SYNCCONFIG, (readByte(REG_SYNCCONFIG) & RF_SYNCCONFIG_SYNCSIZE_MASK) | RF_SYNCCONFIG_SYNCSIZE_2);
         writeByte(REG_OPMODE, (readByte(REG_OPMODE) & RF_OPMODE_MASK) | RF_OPMODE_TRANSMITTER);
-        
+
         TxReady;
     }
 
@@ -254,7 +251,7 @@ namespace Radio {
         // Uncommon and incompatible settings
         writeByte(REG_SYNCCONFIG, (readByte(REG_SYNCCONFIG) & RF_SYNCCONFIG_SYNCSIZE_MASK) | RF_SYNCCONFIG_SYNCSIZE_3);
         writeByte(REG_OPMODE, (readByte(REG_OPMODE) & RF_OPMODE_MASK) | RF_OPMODE_RECEIVER);
-        
+
         RxReady;
         /*
                 // Start Sequencer

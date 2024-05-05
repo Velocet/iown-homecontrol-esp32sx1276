@@ -15,10 +15,8 @@
         #include <CC1101Helpers.h>
 #endif
 
-#if defined(ESP8266)
-  #include <TickerUs.h>
-#elif defined(ESP32)  	
-    #include <TickerUsESP32.h>
+#if defined(ESP32)
+  #include <TickerUsESP32.h>
 #endif
 
 #define SM_GRANULARITY_US               130ULL  // Ticker function frequency in uS (100 minimum) 4 x 26µs = 104
@@ -53,7 +51,7 @@ namespace IOHC {
             static iohcRadio *_iohcRadio;
             static uint8_t _flags[2];
             volatile static unsigned long _g_payload_millis;
-            
+
             volatile static bool send_lock;
             volatile static bool txMode;
 
@@ -67,17 +65,13 @@ namespace IOHC {
             uint8_t currentFreqIdx = 0;
 
 
-        #if defined(ESP8266)
-            Timers::TickerUs TickTimer;
-            Timers::TickerUs Sender;
-//            Timers::TickerUs FreqScanner;
-        #elif defined(ESP32)
+        #if defined(ESP32)
             TimersUS::TickerUsESP32 TickTimer;
             TimersUS::TickerUsESP32 Sender;
         #endif
             iohcPacket *iohc{};
             iohcPacket *delayed{};
-            
+
             IohcPacketDelegate rxCB = nullptr;
             IohcPacketDelegate txCB = nullptr;
             std::vector<iohcPacket*> packets2send{};

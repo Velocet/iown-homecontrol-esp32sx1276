@@ -6,8 +6,8 @@
 #include <board-config.h>
 #include <user_config.h>
 
-#include <vector> 
-#include <sstream> 
+#include <vector>
+#include <sstream>
 #include <cstring>
 
 extern "C" {
@@ -17,8 +17,8 @@ extern "C" {
 
 #define MQTT
 
-#include <WiFi.h>
-#include <esp_wifi.h>
+ #include <WiFi.h>
+ #include <esp_wifi.h>
 #if defined(MQTT)
   #include <AsyncMqttClient.h>
   #include <ArduinoJson.h>
@@ -26,11 +26,7 @@ extern "C" {
 
 #include <utils.h>
 
-#if defined(ESP8266)
-  #include <TickerUs.h>
-  #define MAXCMDS 25
-#elif defined(ESP32)
-//  #include <picoMQTT.h> 	
+#if defined(ESP32)
   #include <TickerUsESP32.h>
   #define MAXCMDS 50
 #endif
@@ -41,13 +37,13 @@ inline WiFiClient wifiClient;                 // Create an ESP32 WiFiClient clas
 using Tokens = std::vector<std::string>;
 
   inline void tokenize(std::string const &str, const char delim, Tokens &out) {
-      // construct a stream from the string 
-      std::stringstream ss(str); 
+      // construct a stream from the string
+      std::stringstream ss(str);
 
-      std::string s; 
-      while (std::getline(ss, s, delim)) { 
-          out.push_back(s); 
-      } 
+      std::string s;
+      while (std::getline(ss, s, delim)) {
+          out.push_back(s);
+      }
   }
   inline struct _cmdEntry {
       char cmd[15];
@@ -83,14 +79,14 @@ inline void onMqttConnect(bool sessionPresent) {
   mqttClient.subscribe("iown/setPresence", 0);
   mqttClient.subscribe("iown/setWindow", 0);
   mqttClient.subscribe("iown/setTemp", 0);
-  /*    0c61 0100 00 Mode AUTO 
+  /*    0c61 0100 00 Mode AUTO
         0c61 0100 01 Mode MANUEL
         0c61 0100 02 Mode PROG
         0c61 0100 04 Mode OFF*/
   mqttClient.subscribe("iown/setMode", 0);
-  mqttClient.subscribe("iown/midnight", 0); 
-  mqttClient.subscribe("iown/associate", 0); 
-  mqttClient.subscribe("iown/heatState", 0); 
+  mqttClient.subscribe("iown/midnight", 0);
+  mqttClient.subscribe("iown/associate", 0);
+  mqttClient.subscribe("iown/heatState", 0);
 
   mqttClient.publish("iown/Frame", 0, false, R"({"cmd": "powerOn", "_data": "Gateway"})", 38);
   // Serial.println("Publishing at QoS 0");
@@ -105,7 +101,7 @@ inline void onMqttConnect(bool sessionPresent) {
 
 //    char *_cmd;
     constexpr char delim = ' ';
-    Tokens segments; 
+    Tokens segments;
 
     // _cmd = cmdReceived(true);
     // if (!_cmd) return;
@@ -160,7 +156,7 @@ inline void onMqttConnect(bool sessionPresent) {
     if (len == 0) {snprintf(message, sizeof(message), "MQTT %s", topic); }
     // Utiliser snprintf pour éviter les dépassements de tampon
     else snprintf(message, sizeof(message), "MQTT %s %s", topic, data);
-      
+
     mqttFuncHandler(message);
   }
 
@@ -182,13 +178,13 @@ inline void onMqttConnect(bool sessionPresent) {
     esp_wifi_set_channel(primaryChan, secondChan);
     ESP_ERROR_CHECK(esp_wifi_set_protocol(WIFI_IF_STA, WIFI_PROTOCOL_11B|WIFI_PROTOCOL_11G));
     ESP_ERROR_CHECK(esp_wifi_set_promiscuous(false));
-     
+
     // TODO put the wifi task in core 1 as tickerUS cant be changed of core
     // constexpr wifi_init_config_t tweak = {.wifi_task_core_id = 0, }; // For fun
     // ESP_ERROR_CHECK(esp_wifi_init(&tweak));
 
     // esp_wifi_scan_stop do the job avoiding crash with MQTT
-    ESP_ERROR_CHECK(esp_wifi_scan_stop()); 
+    ESP_ERROR_CHECK(esp_wifi_scan_stop());
     // WiFi.printDiag(Serial);
     WiFi.begin(WIFI_SSID, WIFI_PASSWD);
   }
@@ -233,9 +229,7 @@ namespace Cmd {
   inline uint8_t _avail = 0;
 //  bool receivingSerial = false;
 
-#if defined(ESP8266)
-      Timers::TickerUs kbd_tick;
-#elif defined(ESP32)
+#if defined(ESP32)
       inline TimersUS::TickerUsESP32 kbd_tick;
 #endif
 
@@ -257,7 +251,7 @@ namespace Cmd {
         if (idx > lastEntry)
           lastEntry = idx;
         return true;
-      } 
+      }
     }
     return false;
   }
@@ -283,7 +277,7 @@ namespace Cmd {
 
   inline void cmdFuncHandler() {
     constexpr char delim = ' ';
-    Tokens segments; 
+    Tokens segments;
 
     char* _cmd = cmdReceived(true);
     if (!_cmd) return;
@@ -309,7 +303,7 @@ namespace Cmd {
     }
     Serial.printf("*> Unknown <*\n");
   }
-  
+
   inline void init() {
     #if defined(MQTT)
     mqttClient.setClientId("iown");
@@ -327,6 +321,6 @@ namespace Cmd {
 
     kbd_tick.attach_ms(500, cmdFuncHandler);
 
-  }  
+  }
 }
 #endif

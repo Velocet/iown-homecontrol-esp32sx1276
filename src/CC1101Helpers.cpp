@@ -4,9 +4,7 @@
 #if defined(CC1101)
 
 #include <map>
-#if defined(ESP8266)
-    #include <TickerUs.h>
-#elif defined(ESP32)
+#if defined(ESP32)
     #include <TickerUsESP32.h>
     #include <esp_task_wdt.h>
 #endif
@@ -61,7 +59,7 @@ namespace Radio
     #if defined(ESP8266)
         SPI.pins(RADIO_SCLK, RADIO_MISO, RADIO_MOSI, RADIO_NSS);
     #endif
-        
+
     #if defined(ESP8266)
         SPI.begin();
     #elif defined(ESP32)
@@ -118,7 +116,7 @@ void SPIsendCommand(uint8_t cmd) {
     spiTransfer(&cmd, 1, &status);
 
     SPI_endTransaction();
-  
+
     //RADIOLIB_VERBOSE_PRINTLN("CMD\tW\t%02X\t%02X", cmd, status);
     (void)status;
 }
@@ -226,7 +224,7 @@ void SPItransfer(uint8_t cmd, uint8_t reg, uint8_t* dataOut, uint8_t* dataIn, si
   SPI_beginTransaction();
   spiTransfer(buffOut, buffLen, buffIn);
   SPI_endTransaction();
-  
+
   // copy the data
   if(cmd == CMD_READ) {
     memcpy(dataIn, &buffIn[1], numBytes);
@@ -273,13 +271,13 @@ void SPItransfer(uint8_t cmd, uint8_t reg, uint8_t* dataOut, uint8_t* dataIn, si
         state |= SPIsetRegValue(REG_PKTCTRL1, 7 << 5, 7, 5);                     // Set preamble quality threshold (set as max)
         state |= SPIsetRegValue(REG_MDMCFG1, RF_NUM_PREAMBLE_24, 6, 4);                  // Set preamble lenght
         state |= SPIsetRegValue(REG_MDMCFG2, RF_MOD_FORMAT_2_FSK, 6, 4);                 // No shapening / 2-FSK modulation
-        state |= SPIsetRegValue(REG_MDMCFG2, RF_MANCHESTER_EN_OFF, 3, 3);                // No Manchester / NRZ encoding 
+        state |= SPIsetRegValue(REG_MDMCFG2, RF_MANCHESTER_EN_OFF, 3, 3);                // No Manchester / NRZ encoding
         state |= SPIsetRegValue(REG_PKTCTRL0, RF_WHITE_DATA_OFF, 6, 6);                  // No whitening / NRZ encoding
         state |= SPIsetRegValue(REG_MDMCFG2, RF_SYNC_MODE_16_16), 2, 0;                  // Require 16bits sync word matched
         state |= SPIsetRegValue(REG_PKTCTRL1, RF_ADR_CHK_NONE, 1, 0);                    // No Addr Check
         state |= SPIsetRegValue(REG_PKTCTRL1, RF_APPEND_STATUS_OFF, 2, 2);               // No append status Bytes
         state |= SPIsetRegValue(REG_ADDR, 0x00);                                         // Set Address to 0
-        state |= SPIsetRegValue(REG_FIFOTHR, RF_FIFO_THR_TX_61_RX_4, 3, 0);     
+        state |= SPIsetRegValue(REG_FIFOTHR, RF_FIFO_THR_TX_61_RX_4, 3, 0);
 
         // flush FIFOs
         SPIsendCommand(CMD_FLUSH_RX | CMD_READ);
@@ -536,7 +534,7 @@ void SPItransfer(uint8_t cmd, uint8_t reg, uint8_t* dataOut, uint8_t* dataIn, si
 
     bool inStdbyOrSleep(void)
     {
-        uint8_t data = SPIgetRegValue(REG_MARCSTATE,4,0);        
+        uint8_t data = SPIgetRegValue(REG_MARCSTATE,4,0);
         if ((data == RF_MARC_STATE_SLEEP) || (data == RF_MARC_STATE_IDLE))
             return true;
         return false;
@@ -621,7 +619,7 @@ void SPItransfer(uint8_t cmd, uint8_t reg, uint8_t* dataOut, uint8_t* dataIn, si
         uint8_t idx = 0x00;
 
         Serial.printf("*********************** Radio registers ***********************\n");
-        do       
+        do
         {
             Serial.printf("*%2.2x=%2.2x\t", idx, SPIgetRegValue(idx)); idx += 1;
             Serial.printf("*%2.2x=%2.2x\t", idx, SPIgetRegValue(idx)); idx += 1;
@@ -718,7 +716,7 @@ void SPItransfer(uint8_t cmd, uint8_t reg, uint8_t* dataOut, uint8_t* dataIn, si
     void sendFrame(uint8_t* data, uint8_t lenFrame){
         for (uint8_t a=0; a<lenFrame; a++)
             Serial.printf("%2.2X ", data[a]);
-        Serial.println();    
+        Serial.println();
 
         /*
         SPIsendCommand(CMD_IDLE);
@@ -777,7 +775,7 @@ void SPItransfer(uint8_t cmd, uint8_t reg, uint8_t* dataOut, uint8_t* dataIn, si
         SPIsetRegValue(REG_SYNC1, syncH);
         SPIsetRegValue(REG_SYNC0, syncL);
     }
-    
+
     void setPktLenght(uint8_t len){
         SPIsetRegValue(REG_PKTLEN, len);
     }
