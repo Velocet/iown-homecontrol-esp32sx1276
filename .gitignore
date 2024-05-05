@@ -1,18 +1,73 @@
-/.pio/
-/.idea/
-/docs/
-compile_commands.json
+# https://gitignore.io
+# https://github.com/github/gitignore
+
+### Private ###
+.private
+desktop.ini
 git_rev_macro.py
-sdkconfig.HeltecESP32
-CMakeLists.txt
-.idea/inspectionProfiles/Project_Default.xml
-.vscode/settings.json
-.idea/IOWN_Mosto.iml
 include/MQTTHelper_h
 include/user_config.h
-test/variousHeater
-src/CMakeLists.txt
-/.vscode/
-/lib/
-/build
 
+### Arduino ###
+.development
+
+### CMake ###
+CMakeLists.txt
+src/CMakeLists.txt
+
+### Documentation ###
+site
+docs
+
+### JetBrains IDEs ###
+# https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
+# Ignore all but style settings and configs supposed to be shared
+.idea/*
+!.idea/codeStyles
+!.idea/runConfigurations
+# JetBrains User-Specifics
+.idea/**/dictionaries
+.idea/**/shelf
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/workspace.xml
+# JetBrains Generated Files
+.idea/**/contentModel.xml
+# JetBrains Sensitive Files
+.idea/**/dataSources.ids
+.idea/**/dataSources.local.xml
+.idea/**/dataSources/
+.idea/**/dbnavigator.xml
+.idea/**/dynamic.xml
+.idea/**/sqlDataSources.xml
+.idea/**/uiDesigner.xml
+# JetBrains File-based Projects
+*.iws
+# JetBrains Cache Creation Bug: issue/JBR-2257
+.idea/$CACHE_FILE$
+# JetBrains Plugin: SonarLint
+.idea/**/sonarlint/
+# JetBrains Plugin: Markdown Navigator
+.idea/**/markdown-navigator/
+.idea/**/markdown-navigator.xml
+.idea/**/markdown-navigator-enh.xml
+
+### PlatformIO ###
+.pio
+build
+compile_commands.*
+lib
+sdkconfig*
+test
+
+### Runtime Data ###
+.cache
+**/bower_components/**
+**/node_modules/**
+**/site-packages/**
+
+### VSCode ###
+.vscode/*browse*
+.vscode/c_cpp_properties*
+.vscode/ipch*
+.vscode/launch*
